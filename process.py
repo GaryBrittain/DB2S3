@@ -7,7 +7,7 @@ import os
 from pushover import message
 
 conn = S3Connection('', '')
-pb = conn.get_bucket('backup--dropbox')
+pb = conn.get_bucket('')
 
 access_token = ''
 
