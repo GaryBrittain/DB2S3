@@ -1,7 +1,7 @@
 import MySQLdb as db
 
 HOST = ""
-PORT = 
+PORT = 1234
 USER = ""
 PASSWORD = ""
 DB = ""
@@ -33,11 +33,11 @@ def next_file_to_process():
   except:
     return 'failure'
 
-def s3_uploaded_confirm(path):
+def s3_uploaded_confirm(path,size,bytes,rev,revision,mime_type,modified,client_mtime):
   try:
     conn = db.Connection(host=HOST, port=PORT, user=USER, passwd=PASSWORD, db=DB)
     dbhandler = conn.cursor(db.cursors.DictCursor)
-    sql = ("UPDATE db2s3 SET S3_UPLOADED = NOW() WHERE PATH = '%s'")%(path)
+    sql = ("UPDATE db2s3 SET S3_UPLOADED = NOW(), SIZE='%s', BYTES='%s', REV='%s', REVISION='%s', MIME_TYPE='%s', MODIFIED='%s', CLIENT_MTIME='%s' WHERE PATH = '%s'")%(size,bytes,rev,revision,mime_type,modified,client_mtime,path)
     dbhandler.execute(sql)
     conn.commit()
     conn.close()
@@ -47,7 +47,7 @@ def s3_uploaded_confirm(path):
       err.close()
 
 def check_lock():
-
+  
   try:
     conn = db.Connection(host=HOST, port=PORT, user=USER, passwd=PASSWORD, db=DB)
     dbhandler = conn.cursor(db.cursors.DictCursor)
