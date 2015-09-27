@@ -10,7 +10,7 @@ def message (message):
     'token': token,
     'user': user,
     'timestamp' : int(time.time()),
-    'priority': '-1',
+    'priority': '1',
     'sound': 'mechanical',
     'title': 'DB2S3',
     'message': message
