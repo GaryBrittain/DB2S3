@@ -1,10 +1,21 @@
-<?php /* 
-Template Name: DB2S3
-*/
+<html>
+<head>
+<title>DB2S3</title>
 
-if ( is_user_logged_in() ) {
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+<meta http-equiv="refresh" content="15" >
 
-get_header();
+<?php
+if(isset($_POST['status'])){
+//move this after the SQL bits
+If( intval($_POST['status']) == 0){
+//Echo '<meta http-equiv="refresh" content="5" >';
+}}
+?>
+</head>
+<body>
+
+<?php
 
 $servername = "";
 $username = "";
@@ -35,13 +46,18 @@ $pending = $pending->fetch_assoc();
 $sql = "SELECT FILENAME, DROPBOX_DOWNLOADED, S3_UPLOADED FROM db2s3 ORDER BY S3_UPLOADED DESC LIMIT 10";
 $result = $conn->query($sql);
 
+$sql = "SELECT S3_UPLOADED AS LAST FROM db2s3 WHERE S3_UPLOADED IS NOT NULL ORDER BY S3_UPLOADED DESC LIMIT 1";
+$lastsync = $conn->query($sql);
+$lastsync = $lastsync->fetch_assoc();
+
+//$sql = "SELECT S3_OBJECTS_CURRENT, S3_SIZE_CURRENT / 1073741824 AS S3_SIZE_CURRENT FROM QUANTITY_VOLUME WHERE ID = 1";
+$sql = "SELECT SUM(BYTES)/1073741824 AS S3_SIZE_CURRENT, COUNT(1) AS S3_OBJECTS_CURRENT FROM db2s3";
+$quanvol = $conn->query($sql);
+$quanvol = $quanvol->fetch_assoc();
+
 $sql = "SELECT PATH, DROPBOX_DOWNLOADED FROM db2s3 WHERE S3_UPLOADED IS NULL ORDER BY DROPBOX_DOWNLOADED DESC LIMIT 10";
 $resPending = $conn->query($sql);
 $conn->close();
-}
-
-else {header('Location: '.site_url());
-die();}
 ?>
 
 <table align="center" width="50%">
@@ -67,7 +83,10 @@ die();}
 <?php
 $formattedNum = number_format($pending["PENDING"]);
 
-echo '<h3>' . $formattedNum . ' uploads pending' . '</h3>';
+echo '<h4>' . $formattedNum . ' uploads pending' . '</h4>';
+echo '<h4> Last sync: ' . $lastsync["LAST"] . '</h4>';
+echo '<h4> S3 size: ' . number_format($quanvol["S3_SIZE_CURRENT"], 2, '.', ',') . ' GB</h4>';
+echo '<h4> S3 objects: ' . number_format($quanvol["S3_OBJECTS_CURRENT"]) . '</h4>';
 
 if ($resPending) {
   echo '<br>
@@ -117,6 +136,8 @@ while($row = $result->fetch_assoc()) {
   echo '</table>';
 }
 
-get_footer();
 die();
 ?>
+
+</body>
+</html>
